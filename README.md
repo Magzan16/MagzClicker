@@ -39,7 +39,13 @@ A screenshot of the final public release will be added here before launch.
 
 ## Download
 
-Official Windows builds will be available through GitHub Releases and the MagzClicker website when the first public release is published.
+The current public release is **MagzClicker 1.5.0**.
+
+- [Download MagzClicker.exe](https://github.com/Magzan16/MagzClicker/releases/latest/download/MagzClicker.exe)
+- [Download SHA-256 checksum](https://github.com/Magzan16/MagzClicker/releases/latest/download/MagzClicker-SHA256.txt)
+- [View all releases](https://github.com/Magzan16/MagzClicker/releases)
+
+The executable keeps the same filename between releases: `MagzClicker.exe`.
 
 ## Privacy and security
 
