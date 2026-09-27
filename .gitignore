@@ -1,0 +1,7 @@
+MagzClicker.exe
+*.exe~
+*.tmp
+.DS_Store
+Thumbs.db
+
+assets/MagzClicker.ico
