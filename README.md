@@ -1,48 +1,113 @@
 # MagzClicker
 
-MagzClicker is a lightweight, portable auto clicker for Windows. It clicks at the mouse cursor's current position and does not save screen coordinates.
+**A simple, lightweight and open-source auto clicker for Windows.**
+
+No installer. No telemetry. No ads. Just clicks.
+
+MagzClicker clicks wherever your mouse cursor is currently located. There is no need to save a fixed screen position, and you can move the cursor freely while the clicker is running.
 
 ## Features
 
-- Adjustable interval: hours, minutes, seconds and milliseconds
+- Adjustable click interval using hours, minutes, seconds and milliseconds
 - Left, right and middle mouse buttons
 - Single or double click
 - Global **Ctrl + Alt + S** start/stop shortcut
-- Visible click pulse around the cursor
-- Optional click limit; leave it blank to run until stopped
-- Estimated run time based on click count and interval
+- Clicks at the mouse cursor's current position
+- Visible orange click indicator around the cursor
+- Optional click limit
+- Leave the click-count field blank to run until manually stopped
+- Automatic estimated run time based on click count and interval
+- Built-in **About** dialog with the installed version
+- Press **F1** to open the project help / README page
+- Portable Windows executable
 - No installer required
 
-## Privacy
+## How to use
 
-MagzClicker does not contain networking, telemetry, analytics, advertising, auto-update, autostart or background-service code. It does not require administrator rights.
+1. Choose the click interval.
+2. Select the mouse button and click type.
+3. Optionally enter the number of clicks you want MagzClicker to perform.
+4. Press **Start** or use **Ctrl + Alt + S**.
+5. Move your mouse wherever you want the clicks to happen.
+6. Press **Ctrl + Alt + S** again to stop at any time.
 
-## Build
+If a click limit is set, MagzClicker stops automatically when that number of clicks has been reached. Press **F1** at any time while MagzClicker is focused to open this help page in your default browser.
 
-Requirements:
+## Screenshot
 
+A screenshot of the final public release will be added here before launch.
+
+## Download
+
+Official Windows builds will be available through GitHub Releases and the MagzClicker website when the first public release is published.
+
+## Privacy and security
+
+MagzClicker is fully open source and intentionally small.
+
+The application does **not** contain:
+
+- Telemetry
+- Analytics
+- Advertising
+- Network communication
+- Automatic updates
+- Autostart functionality
+- Background services
+
+MagzClicker does not require administrator privileges.
+
+The source code used to build the application is available in this repository so that anyone can inspect how it works.
+
+## Windows SmartScreen
+
+New or unsigned Windows applications may trigger a Microsoft SmartScreen warning even when the software is safe.
+
+The project is being prepared for signed public releases. Release files will also include SHA-256 checksums so downloaded files can be verified.
+
+## Build from source
+
+### Requirements
+
+- Windows
 - Go 1.23 or newer
 - Python 3
 - Windows PowerShell
 
-Build from PowerShell:
+From the repository folder, run:
 
 ```powershell
 .\build.ps1
 ```
 
-The build script creates `MagzClicker.exe` and prints its SHA-256 hash.
+The build script creates:
+
+```text
+MagzClicker.exe
+```
+
+and prints the SHA-256 hash of the finished executable.
 
 ## Source layout
 
-- `main.go` — application startup and message loop
-- `clicker.go` — click scheduling, limits and hotkey logic
-- `ui.go` / `windows.go` — Win32 interface and drawing
-- `win32.go` / `helpers.go` — Windows API declarations and helpers
-- `tools/make_icon.py` — generates the application icon
-- `tools/embed_icon.py` — embeds the ICO resource in the Windows executable
-- `build.ps1` — reproducible build command
+- `main.go` — application startup and Windows message loop
+- `clicker.go` — click scheduling, click limits and global hotkey logic
+- `ui.go` — application interface
+- `windows.go` — window procedures and click indicator
+- `win32.go` — Windows API declarations
+- `helpers.go` — UI and Win32 helper functions
+- `assets/MagzClicker.ico` — MagzClicker application icon
+- `tools/embed_icon.py` — embeds the icon into the Windows executable
+- `build.ps1` — reproducible Windows build command
+
+## Issues and suggestions
+
+Found a bug or have an idea for MagzClicker?
+
+Use the repository's **Issues** section to report bugs or suggest improvements.
+
+For security-related issues, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MagzClicker is released under the [MIT License](LICENSE).

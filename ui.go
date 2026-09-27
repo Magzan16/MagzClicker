@@ -4,6 +4,7 @@ func buildUI(hinst uintptr) {
 	controls = nil
 
 	regularFont = makeFont(16, 400, "Segoe UI")
+	inputFont = makeFont(18, 400, "Segoe UI")
 	smallFont = makeFont(14, 400, "Segoe UI")
 	sectionFont = makeFont(20, 700, "Segoe UI")
 	titleFont = makeFont(29, 700, "Segoe UI")
@@ -33,10 +34,10 @@ func buildUI(hinst uintptr) {
 	label("Minutes", 398, 75, 90, 26, 0)
 	label("Seconds", 518, 75, 90, 26, 0)
 	label("Milliseconds", 638, 75, 120, 26, 0)
-	numericField("0", 274, 108, 100, 40, idHours, 0, 999)
-	numericField("0", 394, 108, 100, 40, idMinutes, 0, 59)
-	numericField("0", 514, 108, 100, 40, idSeconds, 0, 59)
-	numericField("500", 634, 108, 120, 40, idMillis, 0, 999)
+	hoursEdit := numericField("0", 274, 110, 100, 36, idHours, 0, 999)
+	minutesEdit := numericField("0", 394, 110, 100, 36, idMinutes, 0, 59)
+	secondsEdit := numericField("0", 514, 110, 100, 36, idSeconds, 0, 59)
+	millisEdit := numericField("500", 634, 110, 120, 36, idMillis, 0, 999)
 	hint := label("Example: 500 ms = 2 clicks per second", 276, 165, 430, 26, 0)
 	applyFont(hint, smallFont)
 	textColors[hint] = rgb(110, 110, 110)
@@ -56,8 +57,8 @@ func buildUI(hinst uintptr) {
 	lAction := label("Action", 438, 345, 90, 28, 0)
 	applyFont(lMouse, regularFont)
 	applyFont(lAction, regularFont)
-	combo([]string{"Left Button", "Right Button", "Middle Button"}, 530, 292, 225, idButton, 0)
-	combo([]string{"Single Click", "Double Click"}, 530, 339, 225, idClickType, 0)
+	buttonCombo := combo([]string{"Left Button", "Right Button", "Middle Button"}, 530, 292, 225, idButton, 0)
+	clickCombo := combo([]string{"Single Click", "Double Click"}, 530, 339, 225, idClickType, 0)
 
 	banner := createCtl("STATIC", "", WS_BORDER, 30, 420, 752, 80, 0)
 	bgBrushes[banner] = lightBlueBrush
@@ -70,30 +71,32 @@ func buildUI(hinst uintptr) {
 	bgBrushes[modeTitle] = lightBlueBrush
 	bgBrushes[modeSub] = lightBlueBrush
 
-	gCount := group("Click Count", 30, 515, 752, 92)
+	gCount := group("Click Count", 30, 515, 752, 112)
 	applyFont(gCount, sectionFont)
-	countLabel := label("Number of clicks", 55, 550, 130, 28, 0)
+	countLabel := label("Number of clicks", 55, 550, 130, 30, 0)
 	applyFont(countLabel, regularFont)
-	limitEdit := edit("", 187, 544, 105, 38, idClickLimit)
-	applyFont(limitEdit, regularFont)
-	estimate := label("Estimated run time: Until stopped", 315, 550, 420, 28, idEstimate)
+	limitEdit := numericField("", 187, 543, 105, 42, idClickLimit, 0, 999999999)
+	setText(limitEdit, "")
+	estimate := label("Estimated run time: Until stopped", 315, 550, 420, 30, idEstimate)
 	applyFont(estimate, regularFont)
 	textColors[estimate] = rgb(70, 70, 70)
-	limitHint := label("Leave blank to run until you stop it.", 187, 580, 320, 20, 0)
+	limitHint := label("Leave blank to run until you stop it.", 187, 591, 320, 24, 0)
 	applyFont(limitHint, smallFont)
 	textColors[limitHint] = rgb(110, 110, 110)
 
-	startStop := button("", 30, 625, 230, 58, idStartStop, true)
+	startStop := button("", 30, 647, 230, 58, idStartStop, true)
 	applyFont(startStop, buttonFont)
 
-	status := label("●  Status: Stopped", 285, 641, 175, 28, idStatus)
-	count := label("Clicks: 0", 485, 641, 120, 28, idPerformed)
+	status := label("●  Status: Stopped", 285, 663, 160, 28, idStatus)
+	count := label("Clicks: 0", 452, 663, 125, 28, idPerformed)
 	applyFont(status, regularFont)
 	applyFont(count, regularFont)
 	textColors[status] = rgb(105, 105, 105)
 	textColors[count] = rgb(90, 90, 90)
 
-	exitBtn := button("Exit", 662, 630, 120, 48, idExit, false)
+	aboutBtn := button("About", 585, 652, 82, 48, idAbout, false)
+	exitBtn := button("Exit", 677, 652, 105, 48, idExit, false)
+	applyFont(aboutBtn, regularFont)
 	applyFont(exitBtn, regularFont)
 
 	for _, h := range controls {
@@ -111,6 +114,9 @@ func buildUI(hinst uintptr) {
 	applyFont(h1, smallFont)
 	applyFont(hint, smallFont)
 	applyFont(limitHint, smallFont)
+	for _, h := range []uintptr{hoursEdit, minutesEdit, secondsEdit, millisEdit, buttonCombo, clickCombo, limitEdit} {
+		applyFont(h, inputFont)
+	}
 	applyFont(startStop, buttonFont)
 
 	updateEstimatedRunTime()

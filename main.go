@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -35,14 +34,14 @@ func main() {
 		return
 	}
 
-	title := fmt.Sprintf("%s %s", appName, version)
+	title := appName
 	mainWnd, _, _ = pCreateWindowEx.Call(
 		0,
 		uintptr(unsafe.Pointer(cls)),
 		uintptr(unsafe.Pointer(w(title))),
 		WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,
 		uintptr(CW_USEDEFAULT), uintptr(CW_USEDEFAULT),
-		832, 750,
+		832, 780,
 		0, 0, hinst, 0,
 	)
 	if mainWnd == 0 {
@@ -83,6 +82,10 @@ func main() {
 		}
 		if msg.Message == WM_HOTKEY && int(msg.WParam) == HOTKEY_ID {
 			toggleFromHotkey()
+			continue
+		}
+		if (msg.Message == WM_KEYDOWN || msg.Message == WM_SYSKEYDOWN) && msg.WParam == VK_F1 {
+			openHelp()
 			continue
 		}
 		pTranslateMessage.Call(uintptr(unsafe.Pointer(&msg)))

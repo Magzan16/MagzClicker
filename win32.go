@@ -4,7 +4,8 @@ import "syscall"
 
 const (
 	appName = "MagzClicker"
-	version = "1.4.3"
+	version = "1.5.0"
+	helpURL = "https://github.com/Magzan16/MagzClicker#readme"
 
 	WS_OVERLAPPED  = 0x00000000
 	WS_CAPTION     = 0x00C00000
@@ -65,6 +66,7 @@ const (
 	STM_SETIMAGE = 0x0172
 	IMAGE_ICON   = 1
 
+	VK_F1       = 0x70
 	VK_CONTROL  = 0x11
 	VK_MENU     = 0x12
 	VK_S        = 0x53
@@ -96,7 +98,8 @@ const (
 	INPUT_MOUSE            = 0
 
 	MB_OK        = 0x00000000
-	MB_ICONERROR = 0x00000010
+	MB_ICONERROR       = 0x00000010
+	MB_ICONINFORMATION = 0x00000040
 
 	COLOR_WINDOW = 5
 
@@ -106,6 +109,7 @@ const (
 
 	LWA_COLORKEY      = 0x00000001
 	SW_HIDE           = 0
+	SW_SHOWNORMAL     = 1
 	SW_SHOWNOACTIVATE = 4
 	SWP_NOACTIVATE    = 0x0010
 
@@ -144,6 +148,7 @@ const (
 	idTitleClicker = 116
 	idClickLimit   = 117
 	idEstimate     = 118
+	idAbout        = 119
 )
 
 type POINT struct{ X, Y int32 }
@@ -216,6 +221,7 @@ var (
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
 	gdi32    = syscall.NewLazyDLL("gdi32.dll")
 	comctl32 = syscall.NewLazyDLL("comctl32.dll")
+	shell32  = syscall.NewLazyDLL("shell32.dll")
 
 	pRegisterClassEx            = user32.NewProc("RegisterClassExW")
 	pCreateWindowEx             = user32.NewProc("CreateWindowExW")
@@ -268,6 +274,7 @@ var (
 	pGetModuleHandle  = kernel32.NewProc("GetModuleHandleW")
 
 	pInitCommonControlsEx = comctl32.NewProc("InitCommonControlsEx")
+	pShellExecute         = shell32.NewProc("ShellExecuteW")
 )
 
 var (
@@ -284,6 +291,7 @@ var (
 	lastHotkeyToggleNS int64
 
 	regularFont uintptr
+	inputFont   uintptr
 	smallFont   uintptr
 	sectionFont uintptr
 	titleFont   uintptr

@@ -5,6 +5,30 @@ import (
 	"unsafe"
 )
 
+func openHelp() {
+	pShellExecute.Call(
+		mainWnd,
+		uintptr(unsafe.Pointer(w("open"))),
+		uintptr(unsafe.Pointer(w(helpURL))),
+		0, 0,
+		SW_SHOWNORMAL,
+	)
+}
+
+func showAbout() {
+	message := appName + "\nVersion " + version +
+		"\n\nA lightweight, open-source auto clicker for Windows." +
+		"\n\nMIT License" +
+		"\n" + helpURL +
+		"\n\nPress F1 to open Help."
+	pMessageBox.Call(
+		mainWnd,
+		uintptr(unsafe.Pointer(w(message))),
+		uintptr(unsafe.Pointer(w("About MagzClicker"))),
+		MB_OK|MB_ICONINFORMATION,
+	)
+}
+
 func flashClickIndicator() {
 	if flashWnd == 0 {
 		return
@@ -110,6 +134,8 @@ func wndProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
 			switch id {
 			case idStartStop:
 				toggle()
+			case idAbout:
+				showAbout()
 			case idExit:
 				pDestroyWindow.Call(mainWnd)
 			}
@@ -196,7 +222,7 @@ func wndProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
 			}
 		}
 		uninstallGlobalHotkey()
-		for _, f := range []uintptr{regularFont, smallFont, sectionFont, titleFont, hotkeyFont, buttonFont} {
+		for _, f := range []uintptr{regularFont, inputFont, smallFont, sectionFont, titleFont, hotkeyFont, buttonFont} {
 			if f != 0 {
 				pDeleteObject.Call(f)
 			}
