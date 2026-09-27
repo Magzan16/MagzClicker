@@ -1,4 +1,5 @@
 MagzClicker.exe
+rsrc_windows_*.syso
 *.exe~
 *.tmp
 .DS_Store

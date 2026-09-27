@@ -1,0 +1,122 @@
+name: Build, sign and publish release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.23.x'
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $match = Select-String -Path ".\win32.go" -Pattern '^\s*version\s*=\s*"([^"]+)"'
+          if (-not $match) {
+            throw "Could not determine MagzClicker version from win32.go"
+          }
+          $version = $match.Matches[0].Groups[1].Value
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Unexpected version format: $version"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build unsigned release
+        shell: pwsh
+        run: .\build.ps1
+
+      - name: Verify unsigned Windows metadata
+        shell: pwsh
+        run: |
+          $info = (Get-Item .\MagzClicker.exe).VersionInfo
+          if ($info.ProductName -ne "MagzClicker") {
+            throw "Unexpected ProductName: $($info.ProductName)"
+          }
+          if ($info.ProductVersion -notlike "${{ steps.version.outputs.version }}*") {
+            throw "Unexpected ProductVersion: $($info.ProductVersion)"
+          }
+          if ($info.FileVersion -notlike "${{ steps.version.outputs.version }}*") {
+            throw "Unexpected FileVersion: $($info.FileVersion)"
+          }
+
+      - name: Upload unsigned artifact
+        id: upload-unsigned-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MagzClicker-unsigned-${{ steps.version.outputs.version }}
+          path: MagzClicker.exe
+          if-no-files-found: error
+
+      - name: Submit SignPath signing request
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: '${{ vars.SIGNPATH_PROJECT_SLUG }}'
+          signing-policy-slug: '${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}'
+          artifact-configuration-slug: '${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}'
+          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1800
+          output-artifact-directory: signed
+
+      - name: Locate and verify signed executable
+        id: signed
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path .\signed -Filter MagzClicker.exe -File -Recurse | Select-Object -First 1
+          if (-not $exe) {
+            throw "Signed MagzClicker.exe was not returned by SignPath"
+          }
+
+          $signature = Get-AuthenticodeSignature $exe.FullName
+          Write-Host "Signature status: $($signature.Status)"
+          Write-Host "Signer: $($signature.SignerCertificate.Subject)"
+          if ($signature.Status -ne "Valid") {
+            throw "Authenticode signature is not valid: $($signature.Status)"
+          }
+
+          "exe=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Create signed checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash "${{ steps.signed.outputs.exe }}" -Algorithm SHA256).Hash
+          "$hash  MagzClicker.exe" | Set-Content -Encoding ascii .\MagzClicker-SHA256.txt
+
+      - name: Prepare release notes
+        shell: pwsh
+        run: |
+          @"
+          # MagzClicker ${{ steps.version.outputs.version }}
+
+          Official Windows release of MagzClicker.
+
+          The executable is digitally signed and a SHA-256 checksum is included.
+
+          Code signing policy:
+          https://github.com/Magzan16/MagzClicker/blob/main/CODE_SIGNING.md
+          "@ | Set-Content -Encoding utf8 .\release-notes.md
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: '${{ github.token }}'
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" `
+            "${{ steps.signed.outputs.exe }}#MagzClicker.exe" `
+            ".\MagzClicker-SHA256.txt#MagzClicker-SHA256.txt" `
+            --title "MagzClicker ${{ steps.version.outputs.version }}" `
+            --notes-file ".\release-notes.md"

@@ -69,7 +69,13 @@ The source code used to build the application is available in this repository so
 
 New or unsigned Windows applications may trigger a Microsoft SmartScreen warning even when the software is safe.
 
-The project is being prepared for signed public releases. Release files will also include SHA-256 checksums so downloaded files can be verified.
+MagzClicker is prepared for digitally signed releases through SignPath. Release files also include SHA-256 checksums so downloaded files can be verified.
+
+## Code signing policy
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+
+See [CODE_SIGNING.md](CODE_SIGNING.md) for the release signing process, project roles and privacy statement.
 
 ## Build from source
 
@@ -77,7 +83,6 @@ The project is being prepared for signed public releases. Release files will als
 
 - Windows
 - Go 1.23 or newer
-- Python 3
 - Windows PowerShell
 
 From the repository folder, run:
@@ -103,7 +108,6 @@ and prints the SHA-256 hash of the finished executable.
 - `win32.go` — Windows API declarations
 - `helpers.go` — UI and Win32 helper functions
 - `assets/MagzClicker.ico` — MagzClicker application icon
-- `tools/embed_icon.py` — embeds the icon into the Windows executable
 - `build.ps1` — reproducible Windows build command
 
 ## Issues and suggestions
